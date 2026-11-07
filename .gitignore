@@ -23,6 +23,7 @@
 02 工具/*.mp4
 02 工具/*.wav
 02 工具/*.png
+02 工具/.render.lock
 
 # 备份后缀文件（如 _outro.py.__old / _tts_key.json.__old.14412）
 02 工具/*.__old*

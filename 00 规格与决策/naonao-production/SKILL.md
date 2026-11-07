@@ -2,10 +2,10 @@
 name: "naonao-production"
 display_name: "脑脑不老佬｜一期视频的完整生产流程"
 display_name_en: "Naonao Video Production Pipeline"
-description: "「脑脑不老佬」科普短视频（16:9 / 1920×1080）从选题到交付的固定流程：文案→去AI味→送审→画面文档→送审→配音→作画→体检→渲染→封面→归档。每期开工前必须先读本 skill。"
+description: "「脑脑不老佬」科普短视频（16:9 / 1920×1080）从选题到交付的固定流程：文案→去AI味→送审→画面文档→送审→配音→作画→体检→渲染→封面→归档。用户提到「做下一期」「NO.xx」「这期开工」「出片」「改画面/改剧本」时使用；每期开工前必须先读本 skill。"
 description_zh: "「脑脑不老佬」科普短视频从文案到成片的固定流程与硬规则，每期开工前必读"
 category: "video-production"
-version: "2.0.0"
+version: "2.2.1"
 author: "脑脑不老佬项目"
 ---
 
@@ -14,25 +14,81 @@ author: "脑脑不老佬项目"
 > **每期开工前先读这一页。** 这里写的都是已经被用户退过稿、被渲染过三遍才换来的规矩。
 > 细则在 `references/` 里，冲突时以本页为准。
 
+## 权威优先级（2026-11-07 新增，先看这张表再动手）
+
+项目里有三份会互相打架的文档。**冲突一律按这个顺序定，不要自己选一份信。**
+
+| 优先级 | 文档 | 管什么 | 与其他冲突时 |
+|---|---|---|---|
+| 1（最高） | 本 `SKILL.md` | 流程、画幅、环境、坑 | 以本页为准 |
+| 2 | `01 操作手册/画面绘制规范.md` | 19 项要素的定义、人形画法、人数规则 | 只在"定义/画法"上生效；画幅、安全区、音效路径一律以本页为准 |
+| 3 | `00 规格与决策/adr/*` | 为什么这么定（历史决策） | 只作依据，不作操作细则 |
+| 4 | `references/*` | 各环节细则 | 细则与本页冲突时以本页为准 |
+
+**已知的历史冲突（本页已改，画面规范也已同步，勿再引用旧值）：**
+
+| 项 | 正确值 | 曾写错的值（已废弃） |
+|---|---|---|
+| 画幅 | 16:9 / **1920×1080** / 30fps | 竖屏 1080×1440、1440×1080 |
+| 字幕安全区 | 元素与文字底边 **≤760**；开 camera 镜 **≤690** | ≤1104 / 开 camera ≤990（竖屏分支的值，横屏下 1104>1080 等于没约束） |
+| 音效目录 | `20 素材_只读/sfx/`（实测 325 个文件） | `20 素材_只读/音效/`（不存在） |
+| 画面构成四层 | **背景 / 中景 / 人物 / 氛围** | 背景/中景/主体/前景（"主体"太抽象，会漏画人形） |
+| 镜号 | 5 段：`00_open / 01_do / 02_solve / 03_end / 04_outro` | 7 镜 `00_hook … 06_outro`（已废弃） |
+| 纸张道具 | 正方形或剧情指定比例 | **A4 的 1:1.414**（观众照做会做不出来） |
+
 ## 0. 一句话流程
 
-```
-选题 → 文案 ──〔去AI味体检〕──→ 送审 ──→ 画面文档 ──→ 送审 ──→ 配音 ──→ 作画 ──→ 七体检 ──→ 渲染 ──→ 封面 ──→ 归档
-                            ↑ 用户不过就不许往下走（配音一改，时间轴+画面全废）
-
-**只有两道人工审核：文案、画面文档。** 配音之后**不再送审**，直接进作画、体检、渲染、交付。
+```text
+选题 → 文案（去AI味双体检）→ 【送审1】 → 画面文档（关键帧预览在先 + 素材盘点）→ 【送审2】 → 配音 → 素材就位 → 作画 → 九体检 → 渲染 → 封面 → 归档
 ```
 
-## 1. 环境（这台机器）
+**只有两道人工审核：文案、画面文档**（【送审1】【送审2】）。配音之后**不再送审**，直接作画 → 体检 → 渲染 → 交付。
+用户不过就不许往下走 —— 配音一改，时间轴和画面全废。
+九个体检脚本与通过标准见 `references/画面规则.md` §四。
+
+**新期开工第一步**（别再从上一期手抄一份 `web/` —— 九期 8 个分叉版本就是这么来的）：
+
+```powershell
+& $PY "02 工具\new_episode.py" NO.32 2026-11-16 "标题" "副标题" --from NO.30
+```
+
+它建目录骨架、拷代码 27 个、生成 `script.py` 骨架与本期 `_上下文.md`；
+源期自己缺的脚本（如 11-14 缺 `_gcheck/_q/_shot`）会逐文件回退到别期去取，不会把缺口传下去。
+
+**开渲前**（不是可选项）：
+
+```powershell
+& $PY "02 工具\preflight.py" NO.xx     # 出 PASS/FAIL 表，有 FAIL 别开工
+```
+
+## 1. 环境（这台机器，2026-11-07 实测过）
 
 | 项 | 值 |
 |---|---|
-| 项目根 | `D:/桌面/脑脑不老佬` |
-| Python | `C:/Users/13071/.workbuddy/binaries/python/envs/default/Scripts/python.exe` |
-| Node | `export NODE_PATH="C:/Users/13071/.workbuddy/binaries/node/workspace/node_modules"` / `export PATH=".../node/versions/22.22.2-6:$PATH"` |
-| ffmpeg / ffprobe | `C:/Users/13071/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_.../ffmpeg-9.0.2-full_build/bin` |
-| Shell | Git Bash（POSIX sh），中文路径必须加引号 |
-| 联网 | 调 MiniMax 配音必须 `dangerouslyDisableSandbox: true`，否则子进程被静默杀掉 |
+| 项目根 | `D:\桌面\脑脑不老佬` |
+| Shell | **PowerShell 7（pwsh）**。不是 Git Bash。 |
+| Python（主用） | `C:\Users\13071\.workbuddy\binaries\python\envs\default\Scripts\python.exe` ✅ 存在 |
+| Python（备用） | `D:\software1\anaconda\python.exe` ✅ 存在 —— 两个都能跑，**同一期只用其中一个**，别混 |
+| Node | `$env:NODE_PATH="C:/Users/13071/.workbuddy/binaries/node/workspace/node_modules"`；版本目录 `C:/Users/13071/.workbuddy/binaries/node/versions/22.22.2-6` ✅ 存在 |
+| ffmpeg / ffprobe | 以 `(Get-Command ffmpeg).Source` 为准；已知在 `C:/Users/13071/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_.../ffmpeg-9.0.2-full_build/bin` |
+| 联网 | **没有沙箱开关**（当前执行模式为"按需确认"）。调 MiniMax 配音直接跑；网络失败就停下报告，不许自己改成本地 TTS |
+| 中文输出 | 跑任何 python/node 前先 `[Console]::OutputEncoding = [Text.Encoding]::UTF8`，否则中文乱码 |
+
+**命令写法（PowerShell 版，照这个抄，别抄 bash 版）**
+
+```powershell
+$PY = "C:\Users\13071\.workbuddy\binaries\python\envs\default\Scripts\python.exe"
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+& $PY "02 工具\check_style.py" "30 制作\<期目录>\script.py"
+
+$env:NODE_PATH = "C:/Users/13071/.workbuddy/binaries/node/workspace/node_modules"
+node "30 制作\<期目录>\web\capture.mjs"
+```
+
+> ❌ 不适用：`$PY=...`（bash 变量）、`export NODE_PATH=...`、`ls`、`grep -c`、`/dev/null`。
+> ✅ 换成：`$PY = ...`、`$env:NODE_PATH=...`、`Get-ChildItem`、`Select-String`、`$null`。
+> 中文路径一律用 `-LiteralPath`，不要用位置参数（位置参数会把 `[ ]` 当通配符）。
+
 
 ## 2. 画幅（2026-11-03 起主线）
 
@@ -65,9 +121,11 @@ do 段不许用一句"可你分不清"带过。要么两情形各算一遍（门
 要么写成"你在心里预演了一遍"。**观众要看见"不行"是怎么不行的。**
 
 ### 3.4 去 AI 味（独立一步，不许跳）
-```bash
-$PY "02 工具/check_style.py" "30 制作/<YYYY-MM-DD_标题>/script.py"   # 能不能说
-$PY "02 工具/_humanize.py"   "30 制作/<YYYY-MM-DD_标题>/script.py"   # 像不像人说的（0~10，≤4 才过）
+```powershell
+$PY = "C:\Users\13071\.workbuddy\binaries\python\envs\default\Scripts\python.exe"
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+& $PY "02 工具\check_style.py" "30 制作\<YYYY-MM-DD_标题>\script.py"   # 能不能说
+& $PY "02 工具\_humanize.py"   "30 制作\<YYYY-MM-DD_标题>\script.py"   # 像不像人说的（0~10，≤4 才过）
 ```
 五刀：删套话 / 破排比 / 斩升华 / 加毛边 / 变节奏。
 用户点名保留的表达写 `HUMANIZE_OK = ["…"]` 豁免。
@@ -84,10 +142,10 @@ $PY "02 工具/_humanize.py"   "30 制作/<YYYY-MM-DD_标题>/script.py"   # 像
 **顺序不能反**：建一个 `99 归档/_构图预览/noXX_keyframes.html`，用 `?f=N` 分帧，
 把每个镜头的关键状态**真画出来**（不是示意图），逐张截图看，改到成立，**再把坐标写回文档**。
 
-```bash
-# 截图（file:// + puppeteer，别用 _shot.mjs —— 它固定 8130 端口）
-export NODE_PATH="C:/Users/13071/.workbuddy/binaries/node/workspace/node_modules"
-node -e "…puppeteer 打开 noXX_keyframes.html?f=0…，clip 1920×1080"
+```powershell
+# 截图（_shot.mjs 走 file://，不占端口，几期可以同时截）
+$env:NODE_PATH = "C:/Users/13071/.workbuddy/binaries/node/workspace/node_modules"
+node _shot.mjs --t 1.3,18.5 --o _v.png
 ```
 
 三条硬规矩：
@@ -104,7 +162,8 @@ node -e "…puppeteer 打开 noXX_keyframes.html?f=0…，clip 1920×1080"
 ### 5.2 文档本体
 
 `06_画面绘制.md`：每镜 19 项 + 4 个量化栏位（包围盒核算 / 最小可见尺寸 / 常驻微动 / 素材锚点）。
-**动笔前先查 `references/素材资产表.md`**：哪些素材已有（直接复用）、哪些要新增（先做素材再做分镜）、哪些音效库里没有（去补）。新增的素材做完要回写这张表。
+**四层一律按「背景 / 中景 / 人物 / 氛围」写**（不要写"主体/前景"，那会漏掉"必须出现人形"这一条）。
+**动笔前先做 §5.4 素材盘点**：哪些素材库里已有（直接复用）、哪些要新增（**先做成素材入库、再写分镜**）、哪些音效库里没有（先去补）。三张表写进 `06_画面绘制.md` 的 `## 素材盘点` 章，格式固定，表 B 全部 ✅ 才许作画。
 细则见 `references/画面规则.md`。文档也要送审。
 
 ### 5.3 生动性（第二道关卡的真正判据）
@@ -123,81 +182,133 @@ node -e "…puppeteer 打开 noXX_keyframes.html?f=0…，clip 1920×1080"
 - 相机平移 ≤ 缩放余量（`lib.js` 的 `camClamp` 已钳住）
 - 渲染前抽七张关键帧，逐张问：演的是哪一句 / 台词里的人都在吗 / 读出来和台词一致吗
 
+### 5.4 素材盘点（写文档时同步做，作画前必须清零）
+
+> 2026-11-07 用户原话：「写完画面文档之后，要先看我们素材库里有没有对应的素材。没有的话，**在做视频之前**就要在素材库中新增这个素材，在画面文档里列出来、加以详细描述。不能在做视频的时候才说做这个素材，那样会造成素材质量下降。每一期视频都要。」
+
+**这不是"顺手看一眼"，是硬闸门。** 素材一边做视频一边现画，一定糙：没时间调比例、没时间对锚点、没时间验包围盒。先入库再做分镜，素材可以反复返工，而分镜只是引用一个已经稳定的东西。
+
+素材库有四个源，写文档时全部过一遍：
+
+| 源 | 路径 | 实际规模 | 什么适合从这儿拿 |
+|---|---|---|---|
+| **图形（SVG）** | `20 素材_只读/graphics_catalog.json` | **539 条**，11 类：水70 / 动物70 / 工具仪器60 / 书纸笔54 / 建筑50 / 植物自然45 / 钱数据44 / 医疗42 / 人物姿态42 / 天体35 / 人体27 | 静态物件、植物、动物、建筑、天体。字段 `id/name/group/tags/viewBox/body`，`body` 就是能直接塞进 SVG 的 path |
+| **画材（代码）** | 本期 `web/js/props*.js` | 各期 20~40 个函数 | 需要动起来、需要按剧情变形的（门、龙、手、纸、硬币） |
+| **音效** | `20 素材_只读/sfx_catalog.json` | **325 条**，33 类 | 所有 `LIB.sfx()` 的 id，只准用这里真实存在的 |
+| **音乐** | `20 素材_只读/bgm_catalog.json` | 按曲风分轨 | 整片一条，一般不动 |
+
+**怎么查**（别靠记忆，也别信旧表 —— 高频画材速查见 `references/素材资产表.md`，完整清单永远以 catalog 为准）：
+
+```powershell
+$PY = "C:\Users\13071\.workbuddy\binaries\python\envs\default\Scripts\python.exe"
+# 按词搜图形库（中英文都试一遍）
+& $PY -c "import json,io;d=json.load(io.open(r'D:\桌面\脑脑不老佬\20 素材_只读\graphics_catalog.json',encoding='utf-8'));[print(x['id'],x['group'],x['name'],'|',x['tags']) for x in d['items'] if 'cup' in (x['name']+x['tags']).lower()]"
+# 按词搜音效库
+& $PY -c "import json,io;d=json.load(io.open(r'D:\桌面\脑脑不老佬\20 素材_只读\sfx_catalog.json',encoding='utf-8'));[print(x['id'],x['category'],x['duration']) for x in d['sounds'] if 'coin' in (x['id']+' '.join(x.get('tags',[]))).lower()]"
+```
+
+查库更快的方式：`& $PY "02 工具\_assetadd.py" find --q coin`（默认图形 + 音效一起搜，加 `--kind gfx` 或 `--kind sfx` 分源）。
+
+**产出**：`06_画面绘制.md` 里固定一章 `## 素材盘点`，三张表，**列的顺序和表头不许改**（脚本按它解析）：
+
+```markdown
+## 素材盘点
+
+### 表 A · 复用（库里已有，直接调）
+| 素材 | 来源 | 用在哪镜 |
+|---|---|---|
+| 硬币 | graphics #381「Coin」/ 或 props.js `coin()` | 00_open、01_do |
+
+### 表 B · 需新增（必须先入库，再作画）
+| 素材 | 用在哪镜 | 画什么（形状/颜色/尺寸/关键动作，≥3 句） | 尺寸与包围盒 | 入库状态 |
+|---|---|---|---|---|
+| 蒙眼布 | 00_open | 深灰布条横跨眼部，两端在脑后打结垂下一截；布面要有两道褶皱；蒙上时从两侧向中间合拢，0.4s 内完成 | 420×90，压在脸中部，底边 ≤700 | ✅ 已入库 |
+
+### 表 C · 音效
+| id | 用在哪句 | 状态 |
+|---|---|---|
+| `money-coin-stack` | 第 2 句 | ✅ 库里已有 |
+| 硬币翻面的脆响 | 第 24 句 | ⚠️ 库里没有，需新增 |
+```
+
+**准入规则（六条，缺一条就不许开工）**
+
+1. 表 B 每一行，**必须在本期写 `scenes.js` 之前**把素材做完入库，并把「入库状态」改成 `✅ 已入库`。
+2. 图类新增 → 用 `02 工具/_assetadd.py gfx --name "…" --group "…" --tags "…" --svg-file "…"` 入库（带文件锁 + 幂等，自动拷文件、分配 id、追加 catalog）。**不许手改 `graphics_catalog.json`** —— 多期同时手改会互相覆盖，最后只剩一期的条目。
+3. 画材类新增 → 写进本期 `web/js/props_<主题>.js`，**单独抽帧看过一遍**（比例、锚点、包围盒），再在 `scenes.js` 里调用。
+4. 音效新增 → 用 `02 工具/_assetadd.py sfx --id "…" --file "…" --category "…"` 入库（同样带锁）。**不许手改 `sfx_catalog.json`**。
+5. 表 B 有一行不是 ✅ → **不许开工作画**。`preflight.py` 会把这条报 FAIL。
+6. 描述写不清（"画个大概的某某"）→ 等于没做，标 `⚠️ 描述不足`，先把描述补到能被另一个 agent 照着画出来。
+
+**盘点做在文档里、不是做在脑子里**：`06_画面绘制.md` 要送审（【送审2】），素材清单跟着一起送 —— 用户看到"这期要新增 3 个素材"，能在送审阶段就判断值不值得，不用等做到一半才发现。
+
 ## 6. 配音 → 作画（配音后不送审）
 
 > 2026-11-03 用户明确：**配音完成直接做视频**，不需要他听、不需要他点头。
 > 只有配音质量本身出问题（音色错、缺句）才停下来报告。
 1. `gen_cues.py` → `tts_whole.py --mode all --engine minimax --fresh`（音色 `presenter_male`，语速 1.16）
 2. `gen_timeline.py` → `build_voice.py`  ← **这一步最容易漏，漏了不报错**
-3. 写 `scenes.js`（动作锚 `L(i)=shot.lines[i].g0-shot.start`，别写死秒数）
-4. 渲染前体检：`_bbox.mjs`（压字幕 0）、`_alive_pre.mjs`（最长静止 <4s）、`_check`、`_gcheck`、`_overlap`、
-   **`_vcheck.py`（配音新鲜度 —— 查 voice.wav / final.mp4 是不是三天前那版）**
-5. `render_all.py <NO.xx>`（会自己调 build_voice；**改过 scenes.js 必须先把 web/_seg 挪走**）
+   `gen_timeline.py` 里的 `TAIL_GUARD` **不要再手填**，用 `02 工具\_tailguard.py` 自动算：
+   `& $PY "02 工具\_tailguard.py" --all "<期>\audio\_tmp\_ALL.wav" --len <本镜切片长度>`
+   （原理：扫 `_ALL.wav` 句间静音，取第一段连续静音的中点；上限 0.5s，下限 0.05s。实测两期与人工手算差 13~60ms，都在静音段内。）
+3. **素材就位（作画前置闸门，不做完不许动 `scenes.js`）**
+   核对本期 `06_画面绘制.md` 的 `## 素材盘点` 表 B：每一行都必须是 `✅ 已入库`。
+   有 `⚠️ 描述不足` 或空白的，先补描述、再把素材做进库（图形用 `02 工具/_assetadd.py gfx` 入库；
+   画材进 `web/js/props_<主题>.js` 并单独抽帧验过）。
+   判据（一条命令）：`& $PY "02 工具\preflight.py" NO.xx --strict-assets` 的「素材盘点」项必须 PASS。
+   **必须带 `--strict-assets`** —— 不带它时老文档缺章只报 WARN，这一项等于没拦住
+   （2026-11-07 实测：`preflight NO.29` 有 2 条 WARN，仍打印"全绿，可以开渲"、`exit 0`）。
+   也可以单独跑 `& $PY "02 工具\_assetcheck.py" NO.xx`：它只干这一件事，缺章直接 FAIL。
+   **表 B 没清零就开作画，等于边写代码边现画素材，素材质量必然掉**（§5.4 的理由）。
+4. 写 `scenes.js`（动作锚 `L(i)=shot.lines[i].g0-shot.start`，别写死秒数）
+   **这一步可以外包给开发 agent，且六期能同时开工** —— 边界、端口分段、验收命令见
+   `references/作画开发交接.md`（只许改本期 `scenes.js`，不许改 `lib.js`；
+   同时最多 2 期在渲，`--par` 压到 2）。
+   自检：`define()` 的五个键必须覆盖 `timeline.json` 的 `shot.scene`，缺键会在 `mountScene` 里
+   以 `Cannot read properties of undefined (reading 'build')` 崩在**第一帧**，看着像渲染故障、其实是整镜没画。
+5. 渲染前体检 —— **一条命令跑完静态十一项**：
+   `& $PY "02 工具\preflight.py" NO.xx`（出 PASS/WARN/FAIL 表，有 FAIL 别开工）
+   **作画前与交付前，这条命令一律加 `--strict-assets`**：此时「素材盘点」缺章算 FAIL。
+   不带时缺章只 WARN（给 15 期老文档留的兼容口子），日常巡检用。
+   它查：文件齐备 / 画幅 1920×1080 / 期号一致 / 台词逐句一致（改了台词没重建 timeline 立刻红）/
+   旧段风险（`scenes.js` 比 `_seg` 新 = 会拿旧画面合出「成功」）/ 段完整性 /
+   九体检脚本齐备（`.mjs` 在各期 web、`_dupcheck/_wcheck/_outro` 在 02 工具，缺了它会指出从哪拷）/
+   **Scenes 覆盖**（`define()` 的键 vs `timeline.json` 的 `shot.scene`，缺一个就是"整镜没画"）/
+   **素材盘点**（`06` 里有 `## 素材盘点` 三表 + 表 B 全 ✅ + `scenes.js` 引用的音效/画材都真实存在）/
+   `_ALL.wav` / 配音新鲜度 / 已交付。九体检明细见 `references/画面规则.md` §四，十一项明细见 §四·五。
+6. `& $PY "02 工具\render_all.py" NO.xx --par=4`（会自己调 build_voice）
+   - **先试渲，别直接全片**：`--pilot=00_open` 只渲开场镜（26 秒的片子约 1.5 分钟），
+     先看真实成片里的字幕位置/安全区/构图，再决定全片。全片 130 分钟，返工太贵。
+   - `--par=N` 分段并发，每槽独占一个端口（默认 1，行为同旧版）。
+   - **多期并行不用手工分端口**：`render_all.py` 有全局渲染锁（原子创建 + 3 秒心跳），
+     同一台机器同时只有一路在渲，其余自动排队并打印「另一路渲染正在跑…已等 N 秒」。
+     2026-11-07 实测：8 / 20 / 40 路同时抢锁零重叠、零超时；持锁进程被强杀后最多 60 秒自动接管。
+   - 锁只管 `render_all`：**绕过它直接 `node capture.mjs`，锁等于不存在** —— 撞端口时
+     `EADDRINUSE` 不报错、`exit 0`、合出一个能播的空 mp4（这就是"静默失败"的成因）。
+   - 改过 `scenes.js`：**先挪走 `web/_seg/`** —— preflight 会报红，但它不会替你挪。
 
 > ★★ **配音是四步接力，缺一步就静默出错**：
 > `tts_whole.py`（写 `audio/shots/*.wav`）→ `gen_timeline.py`（写 `timeline.json`）
 > → `build_voice.py`（按 timeline 拼成 `web/voice.wav`）→ `mux.py`（混进成片）。
 >
-> **2026-11-05 的教训**：我漏跑 `build_voice.py`，`mux.py` 抓的还是 11-01 那版 `voice.wav`，
-> 成片照常出、六个体检全绿、`_alive` 也正常 —— 配的却是三天前上一期的台词。
-> 用户听出来才发现的。同一天查出 **NO.17 / NO.23 两期已归档的成片都是旧配音**
-> （NO.17 预告"折纸 7 次"、NO.23 预告"海盗分金币"，都对不上现在的台词）。
+> **判据**：交付前核 `final.mp4` 音轨时长 ≈ `timeline.json` 的 duration，并跑 `_vcheck.py`。
+> **改过 `script.py` 任何一句**（哪怕只改片尾预告）→ 必须从 `gen_cues.py` 重走；
+> `voice.wav` 变了 → `timeline.json` 多半也变 → **画面要重渲**，不能只换音轨。
 >
-> **改过 `script.py` 的任何一句**（哪怕只改片尾预告），就必须从 `gen_cues.py` 重走，
-> 而且 `voice.wav` 变了 → `timeline.json` 多半也变了 → **画面要重渲**，不能只换音轨。
-> 判据：`timeline.json` 的 duration 变了，`render.mp4` 的帧数就对不上，音画会错位
+> 事故全貌（NO.17/NO.23 旧配音上线、切片切在字上、拼段插静音、动态限幅压人声）→ `references/事故复盘.md`
 
-> ★★★ **切片绝不能切在字上**（2026-11-05，用户连问三次才定位）。
-> `tts_whole.py --mode all` 是"全片一次合成 → 再切成分镜"。
-> 原来切到「本镜最后一句的 g1」，而 g1 是 word 时间戳算的 ——
-> **最后一个字的时间戳一旦漏算，那个字就被切掉**。
-> 表现：`把你也叫上了车` → `把你也叫上来`；句与句之间"卡一下"。
-> **这个 bug 用时长对比查不出来**（切完的 wav 时长和预期一模一样）。
+> ★★★ **切片绝不能切在字上**：切到**下一镜第一句的 `g0`**（落点在句间静音里），**不许切 `g1`**。
+> **判据**：抽 `audio/_tmp/_ALL.wav` 同位置与 `audio/shots/<镜>.wav` 对听 —— 时长对比查不出来（切完的 wav 时长和预期一模一样）。
+> 详见 `references/事故复盘.md` A02。
 >
-> 判据只有一个：**抽 `audio/_tmp/_ALL.wav` 的同一位置，和 `audio/shots/<镜>.wav` 对听**。
-> 修法：切到**下一镜第一句的 g0**，落点在句间静音里。已同步到全部 6 份副本。
+> ★★★ **配音不要先切段再拼回**：`GAP = 0.0`；`build_voice.py` 直接用 `audio/_tmp/_ALL.wav`（只 `adelay` 一个片头留白），**完全不切段、不插静音**。
+> **验收**：`assert (voice[0.15s : 0.15s+len(_ALL)] == _ALL).all()` 必须 100% 逐样本一致。
+>
+> ★★ **混音禁止动态限幅**：只挂一次性静态增益 `gain = min(TARGET_I - input_i, TARGET_TP - input_tp - 0.3)`，**不许 limiter / compressor / loudnorm 动态模式**（会把整条人声瞬时压掉 6~9dB）。
+> **判据**：`_mix.wav` 与 `final.mp4` 都转 8kHz 单声道，20ms 窗包络比应恒为 1.00（1.51 就是坏了）。
+>
+> A01~A05 的完整推导与验收数字见 `references/事故复盘.md`。**禁止**再试图用"压缩静音"修气口（`tighten()` 各期保持禁用）。
 
-> ★★★ **配音不要先切段再拼回**（2026-11-06，用户 A/B 听测一锤定音）。
-> 用户原话：「01 原始 TTS 就没有卡顿，02 切成 5 段再拼回就有，而且 01 只有 1 分 58 秒，02 有两分钟」。
->
-> 根因：`gen_timeline.py` 的 `GAP = 0.35` 在 5 个镜头之间各插 0.35s 静音（共 1.4s），
-> `build_voice.py` 又按 `shot.start` 用 `adelay` 把每段摆进去 ——
-> **连续语音中间被硬塞进 4 段空白**，听感就是「两个字中间顿一下」。
-> 时长差 118.75s → 120.26s 正好对上。
->
-> 修法（两条一起改）：
-> 1. `GAP = 0.0`，镜头首尾相接；片头 `LEAD_IN`、片尾 `END_PAD` 保留（在语音外面，无害）
-> 2. `build_voice.py` **直接用 `audio/_tmp/_ALL.wav`**（TTS 一次合成的整条），
->    只 `adelay` 一个片头留白，**完全不切段、不插静音**。
->    旧工程没有 `_ALL.wav` 时，降级为按**样本精度** `adelay=Ns` 拼 5 段，仍不插 GAP。
->
-> 验收（必须跑）：
-> ```python
-> assert (voice[0.15s : 0.15s+len(_ALL)] == _ALL).all()   # 100% 逐样本一致
-> ```
-> 本期实测 **100.0000% 相同，最大差 0**。
->
-> 判据：**用户说「原始配音不卡、拼完就卡」→ 先比两者时长，差多少就是被插了多少静音。**
-> 把各阶段音频转 MP3 摆出来让用户 A/B，是最快的定位方式 —— 我绕了五轮才想到。
->
-> ★★ **混音第二遍禁止用动态限幅**（2026-11-05，用户连追四轮才定位）。
-> `mux.py` 原来在混音后挂 `alimiter(attack=5, release=90)`。混音加了几十个音效和 BGM，
-> 峰值频繁超 TP，**限幅器会把整条音轨（含人声）瞬时压掉 6~9dB，90ms 后再抬回来** ——
-> 听感就是「两个字中间顿一下」，而且位置分散全片，跟台词、音效点都对不上。
->
-> 判据（唯一可靠）：把 `_mix.wav`（混音后、限幅前）和 `final.mp4` 都转成 **8kHz 单声道**，
-> 对齐后算 20ms 窗包络比。**纯增益应恒为常数**；
-> 修复前 p95/p5 = 1.51（3.6dB），最狠的窗只有 0.35；修复后 1.00（0.0dB）。
->
-> 修法：一次性静态增益 `gain = min(TARGET_I - input_i, TARGET_TP - input_tp - 0.3)`，
-> 只挂 `volume`，**不要任何 limiter / compressor / loudnorm 动态模式**。
-> 代价是成片响度到不了目标（本期 -19.6 vs -18.5 LUFS），完全可以接受。
->
-> **注意别误判**：`norm_voice` 那一步的 limiter 是纯增益，没问题 ——
-> 但测它时必须把两个文件统一到同一采样率，否则包络比会假性波动 5.7dB。
->
-> 另：试图用「压缩静音」修 TTS 气口是错的，`np.concatenate` 硬拼接会新增字间咔哒。
-> 已全部撤回，各期 `tighten()` 保持禁用。
 
 ## 7. 交付与目录（用户只看 40 出版物）
 
@@ -223,16 +334,16 @@ node -e "…puppeteer 打开 noXX_keyframes.html?f=0…，clip 1920×1080"
 |---|---|---|
 | `render_all` 不调 `build_voice` | 画面新、配音旧，**不报错** | 已修，混流前必跑 build_voice；交付后核对音轨时长 |
 | 改了 `_tts_key.json` 的音色 | 和前几期声音不一样，被用户听出来 | **只信 `_tts_key.json` 的实际值**，不信文档里的音色名 |
-| `capture.mjs` 固定 8130 端口 | 并行渲染会 EADDRINUSE，却仍合出"成功"的 mp4 | 多期必须串行 |
+| `capture.mjs` 端口撞了 | 并行渲染 EADDRINUSE，却仍合出"成功"的 mp4 | 已修：`--port` 可配 + `render_all --par=N`；多期并行错开端口段 |
 | 素材锚点算错（`handPalm` 的 (x,y) 是腕点） | 手跑到画外，**不报错** | 读 `props.js` 顶部锚点表 |
-| 音效 id 自己编（`ui-ding`/`foley-salt-pour`） | 静默跳过，成片一个音效都没有 | 只查 `20 素材_只读/sfx_catalog.json` 里真实存在的 id |
-| 画幅一改忘了验居中 | 单球构图整片左塌，预检全绿也看不出 | `|主体中心 − K.CX| > 60px` 就重排 |
-| **分组是空壳**（`G1` 建了，元素却加到 `svg`） | 切景时前一景漏出来，观众看到"画面闪了一下" | `grep -c "(G1," scenes.js` = 这组元素数；凡写成 `(svg,` 的都漏了 |
+| 画幅一改忘了验居中 | 单球构图整片左塌，预检全绿也看不出 | `\|主体中心 − K.CX\| > 60px` 就重排 |
+| **分组是空壳**（`G1` 建了，元素却加到 `svg`） | 切景时前一景漏出来，观众看到"画面闪了一下" | PowerShell 自查：`(Select-String -Path js\scenes.js -Pattern '\(G1,' -AllMatches).Matches.Count` = 这组元素数；再 `Select-String -Path js\scenes.js -Pattern '\(svg,'` 找漏网的 |
 | **相机推近 + 平移**（s:1.15 x:419） | 左边露 419px 空底，"背景没铺满" | `lib.js` 的 `camClamp` 已钳住；想挪人靠调坐标，不靠推相机 |
 | **只靠"闪一下"演台词** | 帧差够、体检全绿，观众看到"卡住了" | 每句至少一个 A/B 级动作，见 `references/画面生动性.md` |
 | **一句话塞三件事** | 画面只演了其中一件，另外两件被说成"画错了" | 拆句，多花 0.3 元重配，比整段返工便宜 |
-| 音效名自己编（`stone-grind` / `whoosh-long-soft`） | mux 静默跳过，成片少两个音效 | 写之前 `ls "20 素材_只读/sfx/"` 核一遍，或用 `_wcheck` 同法核 |
+| 音效 id 自己编（`ui-ding` / `stone-grind` / `whoosh-long-soft`） | mux 静默跳过，成片少音效，**不报错** | 只查 `20 素材_只读/sfx_catalog.json`（实测 325 个文件）里真实存在的 id，写完再核一遍 |
 | **道具的真实规格没核**（"一张 A4 纸，画满格子，八格见方"） | A4 是 210×297 的长方形，装不下正方形格阵，观众照做就做不出来 | 台词里出现的每个实物，先核它的真实尺寸/规格；纸的题只用"正方形的纸" |
+| **素材边做视频边现画**（画面文档没盘点，作画时才现画） | 比例、锚点、包围盒全没验，成片里歪/切边/被字幕压；发现时画面已渲完 | 写文档时出 `## 素材盘点` 三表，**表 B 全 ✅ 才许作画**（§5.4）；图形先去 539 条 SVG 库里找 |
 
 ## references
 
@@ -242,5 +353,6 @@ node -e "…puppeteer 打开 noXX_keyframes.html?f=0…，clip 1920×1080"
 - `references/画面母版.md` —— 2×2 交叉表等可复用画面母版
 - `references/素材资产表.md` —— 现有素材 / 音效清单，写画面文档前先查这里
 - `references/画面规则.md` —— 19 项 + 4 个量化栏位、素材锚点表、换画幅四条规矩
+- `references/事故复盘.md` —— **出配音/混音问题时查这里**，A01~A05 五起事故的症状→判据→修法，最后一节是症状索引表
 - `references/工具清单.md` —— 每个脚本干什么、参数、判据
 - `references/目录与交付.md` —— 完整目录树 + 归档规则
