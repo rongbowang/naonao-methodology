@@ -1,0 +1,207 @@
+{
+ "account": "脑脑不老佬",
+ "series": "思维模型",
+ "output_root": "D:/桌面/脑脑不老佬",
+ "note": "定时任务每期先读本文件：取第一个 task != done 的期号来做；全部 done 后，从 选题库.json 取状态为『可用』的选题新建一期。做完把 task 改成 done 并填 date（发布日期）与 produce_date（制作日）。片尾预告的下一期题材必须与本文件的下一期一致。★ date 是**发布日期**不是生成日期；★ 自 2026-10-17 起按「制作日 + 7 天」排（领先一周囤片），见 queue_rule。",
+ "episodes": [
+  {
+   "no": "NO.01",
+   "topic": "三门悖论",
+   "dir": "v1_montyhall",
+   "task": "done",
+   "date": "2026-10-15"
+  },
+  {
+   "no": "NO.02",
+   "topic": "布雷斯悖论",
+   "dir": "v2_braess",
+   "task": "done",
+   "date": "2026-10-16"
+  },
+  {
+   "no": "NO.03",
+   "topic": "最速降线",
+   "dir": "v3_brachi",
+   "task": "done",
+   "date": "2026-10-17"
+  },
+  {
+   "no": "NO.04",
+   "topic": "蝎子断尾会便秘",
+   "dir": "v4_scorpion",
+   "task": "done",
+   "date": "2026-10-18"
+  },
+  {
+   "no": "NO.05",
+   "topic": "两个必输的游戏，一起玩反而赢",
+   "dir": "v5_parrondo",
+   "task": "done",
+   "date": "2026-10-19"
+  },
+  {
+   "no": "NO.06",
+   "topic": "月亮每年跑掉 3.8 厘米",
+   "dir": "v6_moon",
+   "task": "new",
+   "date": "2026-10-24",
+   "produce_date": "2026-10-17",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.07",
+   "topic": "松鼠因为记性差种出了森林",
+   "dir": "v7_squirrel",
+   "task": "new",
+   "date": "2026-10-25",
+   "produce_date": "2026-10-18",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.08",
+   "topic": "金星上一天比一年长",
+   "dir": "v8_venus",
+   "task": "new",
+   "date": "2026-10-26",
+   "produce_date": "2026-10-19",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.09",
+   "topic": "伽伐尼的『动物电』",
+   "dir": "v9_galvani",
+   "task": "new",
+   "date": "2026-10-27",
+   "produce_date": "2026-10-20",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.10",
+   "topic": "水会逆流而上",
+   "dir": "v10_marangoni",
+   "task": "new",
+   "date": "2026-10-28",
+   "produce_date": "2026-10-21",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.11",
+   "topic": "罗森汉实验",
+   "dir": "v11_rosenhan",
+   "task": "new",
+   "date": "2026-10-29",
+   "produce_date": "2026-10-22",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.12",
+   "topic": "手泡水为什么会皱",
+   "dir": "v12_wrinkle",
+   "task": "new",
+   "date": "2026-10-30",
+   "produce_date": "2026-10-23",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.13",
+   "topic": "旁观者效应",
+   "dir": "v13_bystander",
+   "task": "new",
+   "date": "2026-10-31",
+   "produce_date": "2026-10-24",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.14",
+   "topic": "开尔文算错了地球年龄",
+   "dir": "v14_kelvin",
+   "task": "drop",
+   "date": "",
+   "淘汰原因": "选题库状态=不可用：钩子打不上去（有效分 3.5，改满 3 版）。病灶：这题的生猛点「算错 45 倍」本质是个倍数（C 型只有程度没有实物），而它的机制（放射性生热）全是抽象推论，一帧都画不出来。按 3.11 弃题规则换题。"
+  },
+  {
+   "no": "NO.15",
+   "topic": "巴纳姆效应（福勒实验）",
+   "dir": "v15_barnum",
+   "task": "new",
+   "date": "2026-11-01",
+   "produce_date": "2026-10-25",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.16",
+   "topic": "冰激凌能帮癌症患者",
+   "dir": "v16_icecream",
+   "task": "new",
+   "date": "2026-11-02",
+   "produce_date": "2026-10-26",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.17",
+   "topic": "一朵云重 500 吨",
+   "dir": "v17_cloud",
+   "task": "new",
+   "date": "2026-11-03",
+   "produce_date": "2026-10-27",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.18",
+   "topic": "黄金来自两颗星星相撞",
+   "dir": "v18_gold",
+   "task": "new",
+   "date": "2026-11-04",
+   "produce_date": "2026-10-28",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.19",
+   "topic": "爱因斯坦『一生最大的错误』",
+   "dir": "v19_einstein",
+   "task": "new",
+   "date": "2026-11-05",
+   "produce_date": "2026-10-29",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.20",
+   "topic": "热水比冷水先结冰",
+   "dir": "v20_mpemba",
+   "task": "new",
+   "date": "2026-11-06",
+   "produce_date": "2026-10-30",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.21",
+   "topic": "钻石其实一点都不稀有",
+   "dir": "v21_diamond",
+   "task": "new",
+   "date": "2026-11-07",
+   "produce_date": "2026-10-31",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.22",
+   "topic": "大陆漂移被嘲笑了 50 年",
+   "dir": "v22_wegener",
+   "task": "new",
+   "date": "2026-11-08",
+   "produce_date": "2026-11-01",
+   "status_note": "领先 7 天"
+  },
+  {
+   "no": "NO.23",
+   "topic": "棉花糖实验被推翻",
+   "dir": "v23_marshmallow",
+   "task": "new",
+   "date": "2026-11-09",
+   "produce_date": "2026-11-02",
+   "status_note": "领先 7 天"
+  }
+ ],
+ "lead_days": 7,
+ "queue_rule": "★ 2026-10-17 用户定：领先 7 天囤片。**制作日 + 7 天 = 发布日期**。今天做的那一期，发布在 7 天后（今天 10-17 周六做 → 10-24 下周六发）。排期表里 date=发布日期、produce_date=制作日；每日定时任务取「发布日期 = 今天+7」的那一期来做。",
+ "auto_status": "PAUSED（2026-10-17 用户令暂停：工作流还在摸索、质量未稳定，等用户说开启再恢复；开启后按 +7 规则执行）"
+}
